@@ -1,0 +1,15 @@
+
+# Archivos generados por Flex y Bison
+Parte1/build/
+
+# Ejecutables
+Parte1/bin/
+Parte2/bin/
+
+# Archivos temporales
+*.o
+*.exe
+*.out
+
+# Configuraciones de editores
+.vscode/
