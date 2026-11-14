@@ -1,21 +1,45 @@
+
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include "../include/semantica.h"
 
 int yylex(void);
 void yyerror(char *);
+
+int hayErrores = 0;
+int errorLexico = 0;
 %}
 
-%token INICIO FIN LEER ESCRIBIR /* Palabras reservadas */
-%token IDENTIFICADOR CONSTANTE
+%union {
+    char *lexema;
+    REG_EXPRESION expresion;
+    REG_OPERACION operacion;
+}
+
+%token INICIO FIN LEER ESCRIBIR
+%token <lexema> IDENTIFICADOR CONSTANTE
 %token SUMA RESTA ASIGNACION
 %token PAREN_IZQUIERDO PAREN_DERECHO COMA PUNTO_Y_COMA
 %token ERROR_LEXICO
 
+%type <expresion> identificador expresion termino
+%type <operacion> operadorAditivo
+
 %%
 
 programa:
-    INICIO lista_sentencias FIN {
-        printf("Programa sintacticamente correcto\n");
+    INICIO {
+        Comenzar();
+    }
+    lista_sentencias FIN {
+        Terminar();
+
+        if (!hayErrores) {
+            printf("Programa compilado correctamente\n");
+        } else {
+            printf("Programa finalizado con errores\n");
+        }
     }
     ;
 
@@ -23,42 +47,82 @@ lista_sentencias:
     lista_sentencias sentencia PUNTO_Y_COMA
     |
     sentencia PUNTO_Y_COMA
+    |
+    lista_sentencias error PUNTO_Y_COMA
+    |
+    error PUNTO_Y_COMA
     ;
 
 sentencia:
-    IDENTIFICADOR ASIGNACION expresion
-    | 
+    identificador ASIGNACION expresion {
+        Asignar($1, $3);
+    }
+    |
     LEER PAREN_IZQUIERDO listaIdentificadores PAREN_DERECHO
     |
     ESCRIBIR PAREN_IZQUIERDO listaExpresiones PAREN_DERECHO
     ;
 
-listaIdentificadores: 
-    IDENTIFICADOR COMA listaIdentificadores 
+listaIdentificadores:
+    identificador {
+        LeerID($1);
+    }
     |
-    IDENTIFICADOR
+    listaIdentificadores COMA identificador {
+        LeerID($3);
+    }
     ;
 
 listaExpresiones:
-    expresion COMA listaExpresiones
+    expresion {
+        EscribirExp($1);
+    }
     |
-    expresion
+    listaExpresiones COMA expresion {
+        EscribirExp($3);
+    }
+    ;
+
+identificador:
+    IDENTIFICADOR {
+        $$ = ProcesarID($1);
+        free($1);
+    }
     ;
 
 expresion:
-    expresion SUMA termino
+    expresion operadorAditivo termino {
+        $$ = GenInfijo($1, $2, $3);
+    }
     |
-    expresion RESTA termino
-    |
-    termino
+    termino {
+        $$ = $1;
+    }
     ;
 
 termino:
-    IDENTIFICADOR
+    identificador {
+        $$ = $1;
+    }
     |
-    CONSTANTE
+    CONSTANTE {
+        $$ = ProcesarCte($1);
+        free($1);
+    }
     |
-    PAREN_IZQUIERDO expresion PAREN_DERECHO
+    PAREN_IZQUIERDO expresion PAREN_DERECHO {
+        $$ = $2;
+    }
+    ;
+
+operadorAditivo:
+    SUMA {
+        $$ = ProcesarOp(SUMA);
+    }
+    |
+    RESTA {
+        $$ = ProcesarOp(RESTA);
+    }
     ;
 
 %%
@@ -69,8 +133,14 @@ int main() {
 }
 
 void yyerror(char *s) {
-    printf("Error sintactico: %s\n", s);
+    if (!errorLexico) {
+        printf("Error sintactico: %s\n", s);
+    }
+
+    errorLexico = 0;
+    hayErrores = 1;
 }
+
 int yywrap() {
     return 1;
 }

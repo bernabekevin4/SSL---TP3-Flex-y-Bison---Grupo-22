@@ -389,8 +389,13 @@ char *yytext;
 #define INITIAL 0
 #line 2 "scanner.l"
 #include <stdio.h>
+#include <stdlib.h>
+#include "../include/semantica.h"
 #include "y.tab.h"
-#line 394 "lex.yy.c"
+
+extern int hayErrores;
+extern int errorLexico;
+#line 399 "lex.yy.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -541,10 +546,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 12 "scanner.l"
+#line 17 "scanner.l"
 
 
-#line 548 "lex.yy.c"
+#line 553 "lex.yy.c"
 
 	if ( yy_init )
 		{
@@ -629,97 +634,127 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 14 "scanner.l"
-{ printf("Token: INICIO\n"); return INICIO; }
+#line 19 "scanner.l"
+{
+    printf("Token: INICIO\n");
+    return INICIO;
+}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 15 "scanner.l"
-{ printf("Token: FIN\n"); return FIN; }
+#line 24 "scanner.l"
+{
+    printf("Token: FIN\n");
+    return FIN;
+}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 16 "scanner.l"
-{ printf("Token: LEER\n"); return LEER; }
+#line 29 "scanner.l"
+{
+    printf("Token: LEER\n");
+    return LEER;
+}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 17 "scanner.l"
-{ printf("Token: ESCRIBIR\n"); return ESCRIBIR; }
+#line 34 "scanner.l"
+{
+    printf("Token: ESCRIBIR\n");
+    return ESCRIBIR;
+}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 19 "scanner.l"
+#line 39 "scanner.l"
 {
-    if(yyleng > 32){
+    if (yyleng > 32) {
         printf("Error lexico: identificador demasiado largo\n");
+        hayErrores = 1;
+        errorLexico = 1;
         return ERROR_LEXICO;
     }
 
+    yylval.lexema = (char *) malloc(yyleng + 1);
+    if (yylval.lexema == NULL) {
+        printf("Error: no se pudo reservar memoria\n");
+        exit(1);
+    }
+
+    snprintf(yylval.lexema, yyleng + 1, "%s", yytext);
     return IDENTIFICADOR;
 }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 28 "scanner.l"
+#line 57 "scanner.l"
 {
+    yylval.lexema = (char *) malloc(yyleng + 1);
+    if (yylval.lexema == NULL) {
+        printf("Error: no se pudo reservar memoria\n");
+        exit(1);
+    }
+
+    snprintf(yylval.lexema, yyleng + 1, "%s", yytext);
     return CONSTANTE;
 }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 32 "scanner.l"
+#line 68 "scanner.l"
 { return SUMA; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 33 "scanner.l"
+#line 69 "scanner.l"
 { return RESTA; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 35 "scanner.l"
+#line 70 "scanner.l"
 { return ASIGNACION; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 37 "scanner.l"
+#line 71 "scanner.l"
 { return PAREN_IZQUIERDO; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 38 "scanner.l"
+#line 72 "scanner.l"
 { return PAREN_DERECHO; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 39 "scanner.l"
+#line 73 "scanner.l"
 { return COMA; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 40 "scanner.l"
+#line 74 "scanner.l"
 { return PUNTO_Y_COMA; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 42 "scanner.l"
+#line 76 "scanner.l"
 ;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 44 "scanner.l"
+#line 78 "scanner.l"
 {
     printf("Error lexico: %s\n", yytext);
+    hayErrores = 1;
+    errorLexico = 1;
     return ERROR_LEXICO;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 49 "scanner.l"
+#line 85 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 723 "lex.yy.c"
+#line 758 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1605,4 +1640,16 @@ int main()
 	return 0;
 	}
 #endif
-#line 49 "scanner.l"
+#line 85 "scanner.l"
+
+
+/*
+Ejemplos de programas Micro:
+
+Caso 1: inicio leer (a,b); cc := a + (b-2); escribir (cc, a+4); fin
+
+Caso 2: inicio leer (a,b); cc := a + @ 2; escribir (cc); fin
+
+Caso 3: inicio leer (a,b); cc := a + ; escribir (cc); fin
+
+*/
