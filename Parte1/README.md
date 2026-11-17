@@ -54,7 +54,7 @@ Desde la misma terminal, ejecutar:
 
 Luego se puede ingresar un programa escrito en Micro para analizarlo.
 
-Para finalizar la entrada, utilizar `Ctrl + C`.
+Para finalizar la entrada, utilizar `Ctrl + Z` y luego Enter.
 
 ## Características implementadas
 
@@ -114,3 +114,9 @@ El compilador reconoce el programa y genera instrucciones de código intermedio,
 Los casos de prueba se encuentran organizados en la carpeta `pruebas/`.
 
 Se contemplan programas correctos y situaciones de error para verificar el análisis léxico y sintáctico, así como la recuperación ante errores.
+
+## Documentación
+
+La documentación correspondiente a esta parte del trabajo práctico se encuentra en la carpeta [Documentacion](../Documentacion/).
+
+Allí se incluyen el informe técnico y el manual de usuario con las pruebas realizadas. Consultar Parte 1 dentro de la carpeta documentación.
