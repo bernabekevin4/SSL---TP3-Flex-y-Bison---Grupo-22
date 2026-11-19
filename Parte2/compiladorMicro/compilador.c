@@ -219,7 +219,7 @@ if ( t == SUMA || t == RESTA ) {
  Match(t);
  strcpy(presul, ProcesarOp());
 } else
- ErrorSintactico(t);
+ ErrorSintactico();
 }
 
 /**********************Rutinas Semanticas******************************/
