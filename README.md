@@ -5,11 +5,12 @@
 **Grupo:** 22
 
 **Alumnos:**
+
 - Kevin Ricardo Bernabe Carnero
 - Tomas Greco
 - Tomas Martin Alfonso
 - Angel De Jesus Zaracho
-
+- Alejandro Mauricio Rivera Jorge
 
 Este repositorio contiene el desarrollo del Trabajo Práctico N.º 3, correspondiente a la implementación y análisis de un compilador para el lenguaje Micro.
 
